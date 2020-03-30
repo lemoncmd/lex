@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<script src="index.js"></script>
+</head>
+<body>
+program:<br>
+<textarea id="program" rows="10" cols="64"></textarea><br>
+output:<br>
+<textarea id="output" rows="10" cols="64"></textarea><br>
+<input type="button" onclick="interpret(compile(document.getElementById('program').value))" value="run"></input>
+<br>stack:<br>
+<div id="stack">[]</div>
+</body>
+</html>
