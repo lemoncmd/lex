@@ -78,6 +78,7 @@ function compile(src){
 
 function interpret(src){
 	let stack = [];
+	document.getElementById("output").value = "";
 	function dofunc(fname){
 		let func = src.dec[fname];
 		if(typeof func == "undefined") throw "function `" + fname + "` is not defined";
@@ -97,8 +98,6 @@ function interpret(src){
 				else if(op[0] == "d" && op[1] == "o"){
 					if(op == "doxel"){
 						document.getElementById("output").value += String.fromCharCode(stack.pop());
-					}else if(op == "doxelnumber"){
-						console.log(stack.pop());
 					}else if(op == "doata"){
 						stack.push(stack.pop()+stack.pop());
 					}
@@ -112,4 +111,49 @@ function interpret(src){
 		dofunc(i);
 	}
 	document.getElementById("stack").innerText = "["+stack.join("][")+"]";
+}
+
+let stepgen = steprun(compile(''));
+
+function* steprun(src){
+	let stack = [];
+	document.getElementById("output").value = "";
+	function dispstack(lexes){
+		document.getElementById("stack").innerText = "["+stack.join("][")+"]";
+	}
+	function* dofunc(fname){
+		let func = src.dec[fname];
+		if(typeof func == "undefined") throw "function `" + fname + "` is not defined";
+		
+		for (let snum=0;snum<func.length; snum++){
+			let sent = func[snum];
+			let howmany = sent[sent.length-1];
+			let lexes = [];
+			for(let i=0; i<howmany; i++)lexes.push(stack.pop());
+			for(let op of sent){
+				if(typeof op == "number")break;
+				if(op == "lex1"){stack.push(lexes[0]);}
+				else if(op == "lex2"){stack.push(lexes[1]);}
+				else if(op == "lex3"){stack.push(lexes[2]);}
+				else if(op == "pelx"){snum+=stack.pop();}
+				else if(op == "melx"){let jump =stack.pop(); if(stack.pop()==0)snum+=jump;}
+				else if(op[0] == "d" && op[1] == "o"){
+					if(op == "doxel"){
+						document.getElementById("output").value += String.fromCharCode(stack.pop());
+					}else if(op == "doata"){
+						stack.push(stack.pop()+stack.pop());
+					}else{
+						let gen = dofunc(op.substr(2));
+						while(!gen.next().done)yield dispstack();
+					}
+				}
+				else{stack.push(Number(op));}
+				yield dispstack();
+			}
+		}
+	}
+	for(let i of src.prog){
+		let gen = dofunc(i);
+		while(!gen.next().done)yield dispstack();
+	}
 }

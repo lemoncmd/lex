@@ -10,6 +10,8 @@ program:<br>
 output:<br>
 <textarea id="output" rows="10" cols="64"></textarea><br>
 <input type="button" onclick="interpret(compile(document.getElementById('program').value))" value="run"></input>
+<input type="button" onclick="stepgen = steprun(compile(document.getElementById('program').value))" value="start stepping"></input>
+<input type="button" onclick="stepgen.next()" value="step"></input>
 <br>stack:<br>
 <div id="stack">[]</div>
 </body>
