@@ -4,27 +4,27 @@ function compile(src) {
     let step = 0;
     let curtok = tok[0];
     let progs = { dec: {}, prog: [] };
-    if (curtok == "") {
+    if (curtok === "") {
         return progs;
     }
     function next() {
-        if (curtok == "") {
+        if (curtok === "") {
             throw "reached eof";
         }
         step++;
         curtok = tok[step];
-        if (typeof curtok == "undefined")
+        if (typeof curtok === "undefined")
             curtok = "";
     }
     function declare() {
-        if (curtok == "lex") {
+        if (curtok === "lex") {
             next();
             progs.dec[curtok] = func();
         }
         else {
             progs.prog.push(curtok);
             next();
-            if (curtok != ".") {
+            if (curtok !== ".") {
                 throw "expected `.`";
             }
             next();
@@ -42,7 +42,7 @@ function compile(src) {
             cursent = sents[_cs] = [];
         }
         next();
-        while (curtok != ".") {
+        while (curtok !== ".") {
             switch (curtok) {
                 case "la":
                     if (dofn) {
@@ -69,7 +69,7 @@ function compile(src) {
                 case "melx":
                 case "pelx":
                     dofn = false;
-                    if (curtok != "elx")
+                    if (curtok !== "elx")
                         cursent.push(curtok);
                     cursent.push(maxlas);
                     maxlas = 0;
@@ -84,7 +84,7 @@ function compile(src) {
         next();
         return sents;
     }
-    while (curtok != "") {
+    while (curtok !== "") {
         declare();
     }
     return progs;
@@ -94,7 +94,7 @@ function interpret(src) {
     document.getElementById("output").value = "";
     function dofunc(fname) {
         let func = src.dec[fname];
-        if (typeof func == "undefined")
+        if (typeof func === "undefined")
             throw "function `" + fname + "` is not defined";
         for (let snum = 0; snum < func.length; snum++) {
             let sent = func[snum];
@@ -109,30 +109,30 @@ function interpret(src) {
             for (let i = 0; i < howmany; i++)
                 lexes.push(stack.pop());
             for (let op of sent) {
-                if (typeof op == "number")
+                if (typeof op === "number")
                     break;
-                if (op == "lex1") {
+                if (op === "lex1") {
                     stack.push(lexes[0]);
                 }
-                else if (op == "lex2") {
+                else if (op === "lex2") {
                     stack.push(lexes[1]);
                 }
-                else if (op == "lex3") {
+                else if (op === "lex3") {
                     stack.push(lexes[2]);
                 }
-                else if (op == "pelx") {
+                else if (op === "pelx") {
                     snum += stack.pop();
                 }
-                else if (op == "melx") {
+                else if (op === "melx") {
                     let jump = stack.pop();
-                    if (stack.pop() == 0)
+                    if (stack.pop() === 0)
                         snum += jump;
                 }
-                else if (op[0] == "d" && op[1] == "o") {
-                    if (op == "doxel") {
+                else if (op[0] === "d" && op[1] === "o") {
+                    if (op === "doxel") {
                         document.getElementById("output").value += String.fromCharCode(stack.pop());
                     }
-                    else if (op == "doata") {
+                    else if (op === "doata") {
                         stack.push(stack.pop() + stack.pop());
                     }
                     else
@@ -158,7 +158,7 @@ function* steprun(src) {
     }
     function* dofunc(fname) {
         let func = src.dec[fname];
-        if (typeof func == "undefined")
+        if (typeof func === "undefined")
             throw "function `" + fname + "` is not defined";
         for (let snum = 0; snum < func.length; snum++) {
             let sent = func[snum];
@@ -167,30 +167,30 @@ function* steprun(src) {
             for (let i = 0; i < howmany; i++)
                 lexes.push(stack.pop());
             for (let op of sent) {
-                if (typeof op == "number")
+                if (typeof op === "number")
                     break;
-                if (op == "lex1") {
+                if (op === "lex1") {
                     stack.push(lexes[0]);
                 }
-                else if (op == "lex2") {
+                else if (op === "lex2") {
                     stack.push(lexes[1]);
                 }
-                else if (op == "lex3") {
+                else if (op === "lex3") {
                     stack.push(lexes[2]);
                 }
-                else if (op == "pelx") {
+                else if (op === "pelx") {
                     snum += stack.pop();
                 }
-                else if (op == "melx") {
+                else if (op === "melx") {
                     let jump = stack.pop();
-                    if (stack.pop() == 0)
+                    if (stack.pop() === 0)
                         snum += jump;
                 }
-                else if (op[0] == "d" && op[1] == "o") {
-                    if (op == "doxel") {
+                else if (op[0] === "d" && op[1] === "o") {
+                    if (op === "doxel") {
                         document.getElementById("output").value += String.fromCharCode(stack.pop());
                     }
-                    else if (op == "doata") {
+                    else if (op === "doata") {
                         stack.push(stack.pop() + stack.pop());
                     }
                     else {

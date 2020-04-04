@@ -9,21 +9,21 @@ function compile(src: string){
 	let step = 0;
 	let curtok = tok[0];
 	let progs: Src<string, (string | number)[][]> = {dec:{}, prog:[]};
-	if(curtok == ""){return progs;}
+	if(curtok === ""){return progs;}
 	function next(){
-		if(curtok == ""){throw "reached eof";}
+		if(curtok === ""){throw "reached eof";}
 		step++;
 		curtok = tok[step];
-		if(typeof curtok == "undefined")curtok = "";
+		if(typeof curtok === "undefined")curtok = "";
 	}
 	function declare(){
-		if(curtok == "lex") {
+		if(curtok === "lex") {
 			next();
 			progs.dec[curtok] = func();
 		}else{
 			progs.prog.push(curtok);
 			next();
-			if(curtok != "."){throw "expected `.`";}
+			if(curtok !== "."){throw "expected `.`";}
 			next();
 		}
 	}
@@ -39,7 +39,7 @@ function compile(src: string){
 			cursent = sents[_cs] = [];
 		}
 		next();
-		while(curtok != ".") {
+		while(curtok !== ".") {
 			switch(curtok){
 				case "la":
 					if(dofn){throw "cannot put `la` after function call";}
@@ -63,7 +63,7 @@ function compile(src: string){
 				case "melx":
 				case "pelx":
 				dofn = false;
-				if(curtok != "elx")cursent.push(curtok);
+				if(curtok !== "elx")cursent.push(curtok);
 				cursent.push(maxlas);
 				maxlas = 0;
 				nextsent();
@@ -78,7 +78,7 @@ function compile(src: string){
 		next();
 		return sents;
 	}
-	while(curtok != ""){declare();}
+	while(curtok !== ""){declare();}
 	return progs;
 }
 
@@ -87,7 +87,7 @@ function interpret(src: Src<string, (string | number)[][]>){
 	(document.getElementById("output")! as HTMLTextAreaElement).value = "";
 	function dofunc(fname: string){
 		let func: (string | number)[][] = src.dec[fname];
-		if(typeof func == "undefined") throw "function `" + fname + "` is not defined";
+		if(typeof func === "undefined") throw "function `" + fname + "` is not defined";
 		
 		for (let snum=0;snum<func.length; snum++){
 			let sent: (string | number)[] = func[snum];
@@ -101,16 +101,16 @@ function interpret(src: Src<string, (string | number)[][]>){
 			let lexes: number[] = [];
 			for(let i=0; i<howmany; i++)lexes.push(stack.pop()!);
 			for(let op of sent){
-				if(typeof op == "number")break;
-				if(op == "lex1"){stack.push(lexes[0]);}
-				else if(op == "lex2"){stack.push(lexes[1]);}
-				else if(op == "lex3"){stack.push(lexes[2]);}
-				else if(op == "pelx"){snum+=stack.pop()!;}
-				else if(op == "melx"){let jump =stack.pop()!; if(stack.pop()==0)snum+=jump;}
-				else if(op[0] == "d" && op[1] == "o"){
-					if(op == "doxel"){
+				if(typeof op === "number")break;
+				if(op === "lex1"){stack.push(lexes[0]);}
+				else if(op === "lex2"){stack.push(lexes[1]);}
+				else if(op === "lex3"){stack.push(lexes[2]);}
+				else if(op === "pelx"){snum+=stack.pop()!;}
+				else if(op === "melx"){let jump =stack.pop()!; if(stack.pop()===0)snum+=jump;}
+				else if(op[0] === "d" && op[1] === "o"){
+					if(op === "doxel"){
 						(document.getElementById("output")! as HTMLTextAreaElement).value += String.fromCharCode(stack.pop()!);
-					}else if(op == "doata"){
+					}else if(op === "doata"){
 						stack.push(stack.pop()!+stack.pop()!);
 					}
 					else dofunc(op.substr(2));
@@ -135,7 +135,7 @@ function* steprun(src: Src<string, (string | number)[][]>){
 	}
 	function* dofunc(fname: string){
 		let func = src.dec[fname];
-		if(typeof func == "undefined") throw "function `" + fname + "` is not defined";
+		if(typeof func === "undefined") throw "function `" + fname + "` is not defined";
 		
 		for (let snum=0;snum<func.length; snum++){
 			let sent = func[snum];
@@ -143,16 +143,16 @@ function* steprun(src: Src<string, (string | number)[][]>){
 			let lexes = [];
 			for(let i=0; i<howmany; i++)lexes.push(stack.pop());
 			for(let op of sent){
-				if(typeof op == "number")break;
-				if(op == "lex1"){stack.push(lexes[0]!);}
-				else if(op == "lex2"){stack.push(lexes[1]!);}
-				else if(op == "lex3"){stack.push(lexes[2]!);}
-				else if(op == "pelx"){snum+=stack.pop()!;}
-				else if(op == "melx"){let jump =stack.pop()!; if(stack.pop()==0)snum+=jump;}
-				else if(op[0] == "d" && op[1] == "o"){
-					if(op == "doxel"){
+				if(typeof op === "number")break;
+				if(op === "lex1"){stack.push(lexes[0]!);}
+				else if(op === "lex2"){stack.push(lexes[1]!);}
+				else if(op === "lex3"){stack.push(lexes[2]!);}
+				else if(op === "pelx"){snum+=stack.pop()!;}
+				else if(op === "melx"){let jump =stack.pop()!; if(stack.pop()===0)snum+=jump;}
+				else if(op[0] === "d" && op[1] === "o"){
+					if(op === "doxel"){
 						(document.getElementById("output")! as HTMLTextAreaElement).value += String.fromCharCode(stack.pop()!);
-					}else if(op == "doata"){
+					}else if(op === "doata"){
 						stack.push(stack.pop()!+stack.pop()!);
 					}else{
 						let gen = dofunc(op.substr(2));
