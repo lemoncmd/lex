@@ -98,7 +98,13 @@ function interpret(src) {
             throw "function `" + fname + "` is not defined";
         for (let snum = 0; snum < func.length; snum++) {
             let sent = func[snum];
-            let howmany = sent[sent.length - 1];
+            let howmany = (() => {
+                const last = sent[sent.length - 1];
+                if (typeof last !== "number") {
+                    throw new Error("should not happen");
+                }
+                return last;
+            })();
             let lexes = [];
             for (let i = 0; i < howmany; i++)
                 lexes.push(stack.pop());
@@ -147,7 +153,7 @@ let stepgen = steprun(compile(''));
 function* steprun(src) {
     let stack = [];
     document.getElementById("output").value = "";
-    function dispstack(lexes) {
+    function dispstack() {
         document.getElementById("stack").innerText = "[" + stack.join("][") + "]";
     }
     function* dofunc(fname) {
