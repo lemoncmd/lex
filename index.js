@@ -94,7 +94,7 @@ function compile(src) {
             }
             next();
         }
-        cursent.push(maxlas);
+        cursent.unshift("pop" + maxlas);
         next();
         return sents;
     }
@@ -116,17 +116,18 @@ function* steprun(src) {
             throw "function `" + fname + "` is not defined";
         for (let snum = 0; snum < func.length; snum++) {
             let sent = func[snum];
-            let howmany = sent[sent.length - 1];
             let lexes = [];
-            for (let i = 0; i < howmany; i++)
-                lexes.push(stack.pop());
             for (let op of sent) {
                 if (typeof op === "number")
                     break;
                 if (op.slice(0, 3) === "lex") {
                     stack.push(lexes[Number(op.slice(3)) - 1]);
                 }
-                else if (op.slice(0, 3) === "pop") { }
+                else if (op.slice(0, 3) === "pop") {
+                    const howmany = Number(op.slice(3));
+                    for (let i = 0; i < howmany; i++)
+                        lexes.push(stack.pop());
+                }
                 else if (op === "pelx") {
                     snum += stack.pop();
                 }
