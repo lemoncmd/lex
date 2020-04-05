@@ -1,30 +1,31 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="UTF-8">
-<script src="index.js"></script>
-<link rel="stylesheet" href="index.css">
-</head>
-<body>
-<div class="container">
-<div class="flex-item progs">
-program:<br>
-<textarea id="program" rows="10" cols="64"></textarea><br>
-output:<br>
-<textarea id="output" rows="10" cols="64"></textarea><br>
-<input type="button" onclick="interpret(compile(document.getElementById('program').value))" value="run"></input>
-<input type="button" onclick="stepgen = steprun(compile(document.getElementById('program').value))" value="start stepping"></input>
-<input type="button" onclick="stepgen.next()" value="step"></input>
-</div>
-<div class="flex-item runs">
-<div class="flex-item2">
-compiled program:<br>
-<div id="compiled">[]</div>
-</div>
-<div class="flex-item2">
-stack:<br>
-<div id="stack">[]</div>
-</div>
-</div>
-</body>
+  <head>
+    <meta charset="UTF-8">
+    <script src="index.js"></script>
+    <link rel="stylesheet" href="index.css">
+  </head>
+  <body>
+    <div class="container">
+      <div class="flex-item progs">
+        program:<br>
+        <textarea id="program" rows="10" cols="64"></textarea><br>
+        output:<br>
+        <textarea id="output" rows="10" cols="64"></textarea><br>
+        <input type="button" onclick="interpret(compile(document.getElementById('program').value))" value="run">
+        <input type="button" onclick="stepgen = steprun(compile(document.getElementById('program').value))" value="start stepping">
+        <input type="button" onclick="stepgen.next()" value="step">
+      </div>
+      <div class="flex-item runs">
+        <div class="flex-item2">
+          compiled program:<br>
+          <div id="compiled">[]</div>
+        </div>
+        <div class="flex-item2">
+          stack:<br>
+          <div id="stack">[]</div>
+        </div>
+      </div>
+    </div>
+  </body>
 </html>
