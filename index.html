@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <script src="index.js"></script>
+    <script src="samples.js"></script>
     <link rel="stylesheet" href="index.css">
   </head>
   <body>
@@ -10,10 +11,16 @@
       <div class="flex-item progs">
         <h1>program</h1>
         <textarea id="program" rows="10" cols="64"></textarea><br>
+        <input type="button" value="load sample1" onclick="loadSample(1);">
+        <input type="button" value="load sample2" onclick="loadSample(2);">
+        <input type="button" value="load sample3" onclick="loadSample(3);">
+        <input type="button" value="load sample4" onclick="loadSample(4);">
+        <input type="button" value="load sample5" onclick="loadSample(5);">
+        <input type="button" value="load sample6" onclick="loadSample(6);">
         <h1>output</h1>
         <textarea id="output" rows="10" cols="64"></textarea><br>
-        <input type="button" onclick="stepgen = steprun(compile(document.getElementById('program').value));while(!stepgen.next().done);" value="run">
-        <input type="button" onclick="stepgen = steprun(compile(document.getElementById('program').value));stepgen.next()" value="start stepping">
+        <input type="button" onclick="stepgen = steprun(compile(document.getElementById('program').value));while(!stepgen.next().done);" value="compile &amp; run">
+        <input type="button" onclick="stepgen = steprun(compile(document.getElementById('program').value));stepgen.next()" value="compile">
         <input type="button" onclick="stepgen.next()" value="step">
       </div>
       <div class="flex-item runs">
