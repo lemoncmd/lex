@@ -4,8 +4,24 @@ interface Src<T,U> {
 	}, prog: T[]
 }
 
+function replaceEoLexToElx(tokens: readonly string[]): string[] {
+	const ans: string[] = [];
+
+	for (let i = 0; i < tokens.length; i++) {
+		if (tokens[i] === "eo" && (i + 1 < tokens.length) && tokens[i+1] === "lex") {
+			ans.push("elx");
+			i++;
+		} else {
+			ans.push(tokens[i]);
+		}
+	}
+
+	return ans;
+}
+
 function compile(src: string){
 	let tok = src.split(/\s+/);
+	tok = replaceEoLexToElx(tok);
 	let step = 0;
 	let curtok = tok[0];
 	let progs: Src<string, (string | number)[][]> = {dec:{}, prog:[]};

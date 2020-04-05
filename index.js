@@ -1,6 +1,20 @@
 "use strict";
+function replaceEoLexToElx(tokens) {
+    const ans = [];
+    for (let i = 0; i < tokens.length; i++) {
+        if (tokens[i] === "eo" && (i + 1 < tokens.length) && tokens[i + 1] === "lex") {
+            ans.push("elx");
+            i++;
+        }
+        else {
+            ans.push(tokens[i]);
+        }
+    }
+    return ans;
+}
 function compile(src) {
     let tok = src.split(/\s+/);
+    tok = replaceEoLexToElx(tok);
     let step = 0;
     let curtok = tok[0];
     let progs = { dec: {}, prog: [] };
@@ -71,7 +85,7 @@ function compile(src) {
                     dofn = false;
                     if (curtok !== "elx")
                         cursent.push(curtok);
-                    cursent.push(maxlas);
+                    cursent.unshift("pop" + maxlas);
                     maxlas = 0;
                     nextsent();
                     break;
@@ -109,15 +123,10 @@ function* steprun(src) {
             for (let op of sent) {
                 if (typeof op === "number")
                     break;
-                if (op === "lex1") {
-                    stack.push(lexes[0]);
+                if (op.slice(0, 3) === "lex") {
+                    stack.push(lexes[Number(op.slice(3)) - 1]);
                 }
-                else if (op === "lex2") {
-                    stack.push(lexes[1]);
-                }
-                else if (op === "lex3") {
-                    stack.push(lexes[2]);
-                }
+                else if (op.slice(0, 3) === "pop") { }
                 else if (op === "pelx") {
                     snum += stack.pop();
                 }
@@ -126,7 +135,7 @@ function* steprun(src) {
                     if (stack.pop() === 0)
                         snum += jump;
                 }
-                else if (op[0] === "d" && op[1] === "o") {
+                else if (op.slice(0, 2) === "do") {
                     if (op === "doxel") {
                         document.getElementById("output").value += String.fromCharCode(stack.pop());
                     }
