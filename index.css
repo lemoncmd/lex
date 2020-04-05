@@ -41,3 +41,12 @@ body {
 	flex-flow:column;
 }
 
+h1 {
+	font-size:large;
+}
+
+.sent {
+	display:inline-flex;
+	flex-flow:column;
+	box-shadow: 1px 1px 1px 1px black;
+}

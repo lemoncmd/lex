@@ -8,9 +8,9 @@
   <body>
     <div class="container">
       <div class="flex-item progs">
-        program:<br>
+        <h1>program</h1>
         <textarea id="program" rows="10" cols="64"></textarea><br>
-        output:<br>
+        <h1>output</h1>
         <textarea id="output" rows="10" cols="64"></textarea><br>
         <input type="button" onclick="stepgen = steprun(compile(document.getElementById('program').value));while(!stepgen.next().done);" value="run">
         <input type="button" onclick="stepgen = steprun(compile(document.getElementById('program').value))" value="start stepping">
@@ -18,11 +18,11 @@
       </div>
       <div class="flex-item runs">
         <div class="flex-item2">
-          compiled program:<br>
+          <h1>compiled program</h1>
           <div id="compiled"></div>
         </div>
         <div class="flex-item2">
-          stack:<br>
+          <h1>stack</h1>
           <div id="stack">[]</div>
         </div>
       </div>

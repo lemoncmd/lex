@@ -115,13 +115,25 @@ function* steprun(src: Src<string, string[][]>){
 		let def = document.createElement("div");
 		let fname = document.createElement("div");
 		let content = document.createElement("div");
+		def.appendChild(fname);
+		def.appendChild(content);
 		def.classList.add("def");
-		def.appendChild(fname);
-		def.appendChild(fname);
 
 		fname.innerText = i + ":";
 
 		content.classList.add("def-content");
+		for(let sent of src.dec[i]){
+			let sentelem = document.createElement("div");
+			sentelem.classList.add("sent");
+
+			for(let op of sent){
+				let opelem = document.createElement("span");
+				opelem.innerText = op;
+				sentelem.appendChild(opelem);
+			}
+
+			content.appendChild(sentelem);
+		}
 
 		compiled.appendChild(def);
 	}
