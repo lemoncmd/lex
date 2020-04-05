@@ -64,7 +64,7 @@ function compile(src: string){
 				case "pelx":
 				dofn = false;
 				if(curtok !== "elx")cursent.push(curtok);
-				cursent.push(maxlas);
+				cursent.unshift("pop" + maxlas);
 				maxlas = 0;
 				nextsent();
 				break;
@@ -101,12 +101,11 @@ function* steprun(src: Src<string, (string | number)[][]>){
 			for(let i=0; i<howmany; i++)lexes.push(stack.pop());
 			for(let op of sent){
 				if(typeof op === "number")break;
-				if(op === "lex1"){stack.push(lexes[0]!);}
-				else if(op === "lex2"){stack.push(lexes[1]!);}
-				else if(op === "lex3"){stack.push(lexes[2]!);}
+				if(op.slice(0,3) === "lex"){stack.push(lexes[Number(op.slice(3))-1]!);}
+				else if(op.slice(0,3) === "pop"){}
 				else if(op === "pelx"){snum+=stack.pop()!;}
-				else if(op === "melx"){let jump =stack.pop()!; if(stack.pop()===0)snum+=jump;}
-				else if(op[0] === "d" && op[1] === "o"){
+				else if(op === "melx"){let jump =stack.pop()!; if(stack.pop() === 0)snum+=jump;}
+				else if(op.slice(0, 2) === "do"){
 					if(op === "doxel"){
 						(document.getElementById("output")! as HTMLTextAreaElement).value += String.fromCharCode(stack.pop()!);
 					}else if(op === "doata"){
