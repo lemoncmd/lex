@@ -12,7 +12,7 @@
         <textarea id="program" rows="10" cols="64"></textarea><br>
         output:<br>
         <textarea id="output" rows="10" cols="64"></textarea><br>
-        <input type="button" onclick="interpret(compile(document.getElementById('program').value))" value="run">
+        <input type="button" onclick="stepgen = steprun(compile(document.getElementById('program').value));while(!stepgen.next().done);" value="run">
         <input type="button" onclick="stepgen = steprun(compile(document.getElementById('program').value))" value="start stepping">
         <input type="button" onclick="stepgen.next()" value="step">
       </div>
