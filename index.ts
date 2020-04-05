@@ -102,10 +102,30 @@ let stepgen = steprun(compile(''));
 
 function* steprun(src: Src<string, string[][]>){
 	let stack: number[] = [];
+
 	(document.getElementById("output")! as HTMLTextAreaElement).value = "";
 	function dispstack(){
 		document.getElementById("stack")!.innerText = "["+stack.join("][")+"]";
 	}
+
+	let compiled = document.getElementById("compiled")! as HTMLDivElement; 
+	compiled.innerHTML = "";
+	
+	for(let i in src.dec){
+		let def = document.createElement("div");
+		let fname = document.createElement("div");
+		let content = document.createElement("div");
+		def.classList.add("def");
+		def.appendChild(fname);
+		def.appendChild(fname);
+
+		fname.innerText = i + ":";
+
+		content.classList.add("def-content");
+
+		compiled.appendChild(def);
+	}
+
 	function* dofunc(fname: string){
 		let func = src.dec[fname];
 		if(typeof func === "undefined") throw "function `" + fname + "` is not defined";

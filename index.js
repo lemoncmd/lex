@@ -110,6 +110,19 @@ function* steprun(src) {
     function dispstack() {
         document.getElementById("stack").innerText = "[" + stack.join("][") + "]";
     }
+    let compiled = document.getElementById("compiled");
+    compiled.innerHTML = "";
+    for (let i in src.dec) {
+        let def = document.createElement("div");
+        let fname = document.createElement("div");
+        let content = document.createElement("div");
+        def.classList.add("def");
+        def.appendChild(fname);
+        def.appendChild(fname);
+        fname.innerText = i + ":";
+        content.classList.add("def-content");
+        compiled.appendChild(def);
+    }
     function* dofunc(fname) {
         let func = src.dec[fname];
         if (typeof func === "undefined")

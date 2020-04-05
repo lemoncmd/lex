@@ -26,3 +26,18 @@ body {
 	box-shadow: 1px 1px 1px 1px black;
 	height:50vh;
 }
+
+.def {
+	display:flex;
+}
+
+.def-content {
+	display:flex;
+	flex-flow:column;
+}
+
+#compiled {
+	display:flex;
+	flex-flow:column;
+}
+
