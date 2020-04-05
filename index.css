@@ -1,0 +1,28 @@
+body {
+	margin: 0;
+}
+
+.container {
+	display: flex;
+	height:100vh;
+}
+
+.flex-item {
+	box-shadow: 0 0 0 1px black;
+	width:50vw;
+}
+
+.progs, .flex-item2 {
+	padding:10px;
+}
+
+.runs {
+	display: flex;
+	flex-flow: column;
+}
+
+.flex-item2 {
+	overflow-y: scroll;
+	box-shadow: 1px 1px 1px 1px black;
+	height:50vh;
+}
