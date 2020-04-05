@@ -121,6 +121,7 @@ function* steprun(src) {
         def.classList.add("def");
         fname.innerText = i + ":";
         content.classList.add("def-content");
+        content.id = "content-" + i;
         for (let sent of src.dec[i]) {
             let sentelem = document.createElement("div");
             sentelem.classList.add("sent");
@@ -133,13 +134,17 @@ function* steprun(src) {
         }
         compiled.appendChild(def);
     }
+    yield dispstack();
     function* dofunc(fname) {
         let func = src.dec[fname];
         if (typeof func === "undefined")
             throw "function `" + fname + "` is not defined";
+        let content = document.getElementById("content-" + fname).children;
         for (let snum = 0; snum < func.length; snum++) {
+            let sentelem = content[snum];
             let sent = func[snum];
             let lexes = [];
+            let opnum = 0;
             for (let op of sent) {
                 if (typeof op === "number")
                     break;
@@ -175,7 +180,10 @@ function* steprun(src) {
                 else {
                     stack.push(Number(op));
                 }
+                sentelem.children[opnum].classList.add("current-op");
                 yield dispstack();
+                sentelem.children[opnum].classList.remove("current-op");
+                opnum++;
             }
         }
     }

@@ -50,3 +50,7 @@ h1 {
 	flex-flow:column;
 	box-shadow: 1px 1px 1px 1px black;
 }
+
+.current-op {
+	background-color: yellow;
+}
