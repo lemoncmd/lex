@@ -4,7 +4,7 @@ interface Src<T,U> {
 	}, prog: T[]
 }
 
-type Operation = {foobar: string};
+type Operation = "melx" | "pelx" | {foobar: string};
 
 function replaceEoLexToElx(tokens: readonly string[]): string[] {
 	const ans: string[] = [];
@@ -81,7 +81,7 @@ function compile(src: string){
 				case "melx":
 				case "pelx":
 				dofn = false;
-				if(curtok !== "elx")cursent.push({foobar: curtok});
+				if(curtok !== "elx")cursent.push(curtok);
 				cursent.unshift({foobar: "pop" + maxlas});
 				maxlas = 0;
 				nextsent();
@@ -102,6 +102,11 @@ function compile(src: string){
 
 let stepgen = steprun(compile(''));
 
+function stringifyOperation(op: Operation) {
+	if(op === "melx" || op === "pelx") { return op; } else {
+		return op.foobar;
+	}
+}
 
 function* steprun(src: Src<string, Operation[][]>){
 	let stack: number[] = [];
@@ -132,7 +137,7 @@ function* steprun(src: Src<string, Operation[][]>){
 
 			for(let op of sent){
 				let opelem = document.createElement("span");
-				opelem.innerText = op.foobar;
+				opelem.innerText = stringifyOperation(op);
 				sentelem.appendChild(opelem);
 			}
 
@@ -154,13 +159,13 @@ function* steprun(src: Src<string, Operation[][]>){
 			let lexes = [];
 			let opnum = 0;
 			for(let op of sent){
-				if(op.foobar.slice(0,3) === "lex"){stack.push(lexes[Number(op.foobar.slice(3))-1]!);}
+				if(op === "pelx"){snum+=stack.pop()!;}
+				else if(op === "melx"){let jump =stack.pop()!; if(stack.pop() === 0)snum+=jump;}
+				else if(op.foobar.slice(0,3) === "lex"){stack.push(lexes[Number(op.foobar.slice(3))-1]!);}
 				else if(op.foobar.slice(0,3) === "pop"){
 					const howmany = Number(op.foobar.slice(3));
 					for(let i=0; i<howmany; i++)lexes.push(stack.pop());
 				}
-				else if(op.foobar === "pelx"){snum+=stack.pop()!;}
-				else if(op.foobar === "melx"){let jump =stack.pop()!; if(stack.pop() === 0)snum+=jump;}
 				else if(op.foobar.slice(0, 2) === "do"){
 					if(op.foobar === "doxel"){
 						(document.getElementById("output")! as HTMLTextAreaElement).value += String.fromCharCode(stack.pop()!);
