@@ -85,7 +85,7 @@ function compile(src) {
                     dofn = false;
                     if (curtok !== "elx")
                         cursent.push(curtok);
-                    cursent.unshift({ type: "foobar", foobar: "pop" + maxlas });
+                    cursent.unshift({ type: "pop", howmany: maxlas });
                     maxlas = 0;
                     nextsent();
                     break;
@@ -94,7 +94,7 @@ function compile(src) {
             }
             next();
         }
-        cursent.unshift({ type: "foobar", foobar: "pop" + maxlas });
+        cursent.unshift({ type: "pop", howmany: maxlas });
         next();
         return sents;
     }
@@ -110,6 +110,9 @@ function stringifyOperation(op) {
     }
     else if (op.type === "execute") {
         return "execute " + op.fname;
+    }
+    else if (op.type === "pop") {
+        return `pop ${op.howmany} elem${op.howmany === 1 ? "" : "s"}`;
     }
     else {
         return op.foobar;
@@ -178,13 +181,13 @@ function* steprun(src) {
                             yield dispstack();
                     }
                 }
-                else if (op.foobar.slice(0, 3) === "lex") {
-                    stack.push(lexes[Number(op.foobar.slice(3)) - 1]);
-                }
-                else if (op.foobar.slice(0, 3) === "pop") {
-                    const howmany = Number(op.foobar.slice(3));
+                else if (op.type === "pop") {
+                    const howmany = op.howmany;
                     for (let i = 0; i < howmany; i++)
                         lexes.push(stack.pop());
+                }
+                else if (op.foobar.slice(0, 3) === "lex") {
+                    stack.push(lexes[Number(op.foobar.slice(3)) - 1]);
                 }
                 else {
                     stack.push(Number(op.foobar));

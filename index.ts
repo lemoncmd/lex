@@ -4,7 +4,10 @@ interface Src<T,U> {
 	}, prog: T[]
 }
 
-type Operation = "melx" | "pelx" | {type: "execute", fname: string} | {type: "foobar", foobar: string};
+type Operation = "melx" | "pelx" 
+	| {type: "execute", fname: string} 
+	| {type: "pop", howmany: number}
+	| {type: "foobar", foobar: string};
 
 function replaceEoLexToElx(tokens: readonly string[]): string[] {
 	const ans: string[] = [];
@@ -82,7 +85,7 @@ function compile(src: string){
 				case "pelx":
 				dofn = false;
 				if(curtok !== "elx")cursent.push(curtok);
-				cursent.unshift({type: "foobar", foobar: "pop" + maxlas});
+				cursent.unshift({type: "pop", howmany: maxlas});
 				maxlas = 0;
 				nextsent();
 				break;
@@ -92,7 +95,7 @@ function compile(src: string){
 			}
 			next();
 		}
-		cursent.unshift({type: "foobar", foobar: "pop" + maxlas});
+		cursent.unshift({type: "pop", howmany: maxlas});
 		next();
 		return sents;
 	}
@@ -107,6 +110,8 @@ function stringifyOperation(op: Operation) {
 		return op; 
 	} else if (op.type === "execute") {
 		return "execute " + op.fname;
+	} else if (op.type === "pop") {
+		return `pop ${op.howmany} elem${op.howmany === 1 ? "" : "s"}`;
 	} else {
 		return op.foobar;
 	}
@@ -175,12 +180,11 @@ function* steprun(src: Src<string, Operation[][]>){
 						while(!gen.next().done)yield dispstack();
 					}
 				}
-				else if(op.foobar.slice(0,3) === "lex"){stack.push(lexes[Number(op.foobar.slice(3))-1]!);}
-				else if(op.foobar.slice(0,3) === "pop"){
-					const howmany = Number(op.foobar.slice(3));
+				else if(op.type === "pop"){
+					const howmany = op.howmany;
 					for(let i=0; i<howmany; i++)lexes.push(stack.pop());
 				}
-				
+				else if(op.foobar.slice(0,3) === "lex"){stack.push(lexes[Number(op.foobar.slice(3))-1]!);}
 				else{stack.push(Number(op.foobar));}
 				sentelem.children[opnum].classList.add("current-op");
 				yield dispstack();
