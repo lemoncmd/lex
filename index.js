@@ -70,12 +70,12 @@ function compile(src) {
                     break;
                 case "lex":
                     if (las > 0) {
-                        cursent.push({ foobar: "lex" + las });
+                        cursent.push({ type: "foobar", foobar: "lex" + las });
                         las = 0;
                     }
                     else {
                         next();
-                        cursent.push({ foobar: "do" + curtok });
+                        cursent.push({ type: "execute", fname: curtok });
                         dofn = true;
                     }
                     break;
@@ -85,16 +85,16 @@ function compile(src) {
                     dofn = false;
                     if (curtok !== "elx")
                         cursent.push(curtok);
-                    cursent.unshift({ foobar: "pop" + maxlas });
+                    cursent.unshift({ type: "foobar", foobar: "pop" + maxlas });
                     maxlas = 0;
                     nextsent();
                     break;
                 default:
-                    cursent.push({ foobar: curtok });
+                    cursent.push({ type: "foobar", foobar: curtok });
             }
             next();
         }
-        cursent.unshift({ foobar: "pop" + maxlas });
+        cursent.unshift({ type: "foobar", foobar: "pop" + maxlas });
         next();
         return sents;
     }
@@ -107,6 +107,9 @@ let stepgen = steprun(compile(''));
 function stringifyOperation(op) {
     if (op === "melx" || op === "pelx") {
         return op;
+    }
+    else if (op.type === "execute") {
+        return "execute " + op.fname;
     }
     else {
         return op.foobar;
@@ -162,6 +165,19 @@ function* steprun(src) {
                     if (stack.pop() === 0)
                         snum += jump;
                 }
+                else if (op.type === "execute") {
+                    if (op.fname === "xel") {
+                        document.getElementById("output").value += String.fromCharCode(stack.pop());
+                    }
+                    else if (op.fname === "ata") {
+                        stack.push(stack.pop() + stack.pop());
+                    }
+                    else {
+                        let gen = dofunc(op.fname);
+                        while (!gen.next().done)
+                            yield dispstack();
+                    }
+                }
                 else if (op.foobar.slice(0, 3) === "lex") {
                     stack.push(lexes[Number(op.foobar.slice(3)) - 1]);
                 }
@@ -169,19 +185,6 @@ function* steprun(src) {
                     const howmany = Number(op.foobar.slice(3));
                     for (let i = 0; i < howmany; i++)
                         lexes.push(stack.pop());
-                }
-                else if (op.foobar.slice(0, 2) === "do") {
-                    if (op.foobar === "doxel") {
-                        document.getElementById("output").value += String.fromCharCode(stack.pop());
-                    }
-                    else if (op.foobar === "doata") {
-                        stack.push(stack.pop() + stack.pop());
-                    }
-                    else {
-                        let gen = dofunc(op.foobar.substr(2));
-                        while (!gen.next().done)
-                            yield dispstack();
-                    }
                 }
                 else {
                     stack.push(Number(op.foobar));

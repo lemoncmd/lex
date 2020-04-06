@@ -4,7 +4,7 @@ interface Src<T,U> {
 	}, prog: T[]
 }
 
-type Operation = "melx" | "pelx" | {foobar: string};
+type Operation = "melx" | "pelx" | {type: "execute", fname: string} | {type: "foobar", foobar: string};
 
 function replaceEoLexToElx(tokens: readonly string[]): string[] {
 	const ans: string[] = [];
@@ -68,11 +68,11 @@ function compile(src: string){
 				
 				case "lex":
 				if(las > 0) {
-					cursent.push({foobar: "lex" + las});
+					cursent.push({type: "foobar", foobar: "lex" + las});
 					las = 0;
 				}else{
 					next();
-					cursent.push({foobar: "do" + curtok});
+					cursent.push({type: "execute", fname: curtok});
 					dofn = true;
 				}
 				break;
@@ -82,17 +82,17 @@ function compile(src: string){
 				case "pelx":
 				dofn = false;
 				if(curtok !== "elx")cursent.push(curtok);
-				cursent.unshift({foobar: "pop" + maxlas});
+				cursent.unshift({type: "foobar", foobar: "pop" + maxlas});
 				maxlas = 0;
 				nextsent();
 				break;
 				
 				default:
-				cursent.push({foobar: curtok});
+				cursent.push({type: "foobar", foobar: curtok});
 			}
 			next();
 		}
-		cursent.unshift({foobar: "pop" + maxlas});
+		cursent.unshift({type: "foobar", foobar: "pop" + maxlas});
 		next();
 		return sents;
 	}
@@ -103,7 +103,11 @@ function compile(src: string){
 let stepgen = steprun(compile(''));
 
 function stringifyOperation(op: Operation) {
-	if(op === "melx" || op === "pelx") { return op; } else {
+	if(op === "melx" || op === "pelx") { 
+		return op; 
+	} else if (op.type === "execute") {
+		return "execute " + op.fname;
+	} else {
 		return op.foobar;
 	}
 }
@@ -161,21 +165,22 @@ function* steprun(src: Src<string, Operation[][]>){
 			for(let op of sent){
 				if(op === "pelx"){snum+=stack.pop()!;}
 				else if(op === "melx"){let jump =stack.pop()!; if(stack.pop() === 0)snum+=jump;}
+				else if(op.type === "execute"){
+					if(op.fname === "xel"){
+						(document.getElementById("output")! as HTMLTextAreaElement).value += String.fromCharCode(stack.pop()!);
+					}else if(op.fname === "ata"){
+						stack.push(stack.pop()!+stack.pop()!);
+					}else{
+						let gen = dofunc(op.fname);
+						while(!gen.next().done)yield dispstack();
+					}
+				}
 				else if(op.foobar.slice(0,3) === "lex"){stack.push(lexes[Number(op.foobar.slice(3))-1]!);}
 				else if(op.foobar.slice(0,3) === "pop"){
 					const howmany = Number(op.foobar.slice(3));
 					for(let i=0; i<howmany; i++)lexes.push(stack.pop());
 				}
-				else if(op.foobar.slice(0, 2) === "do"){
-					if(op.foobar === "doxel"){
-						(document.getElementById("output")! as HTMLTextAreaElement).value += String.fromCharCode(stack.pop()!);
-					}else if(op.foobar === "doata"){
-						stack.push(stack.pop()!+stack.pop()!);
-					}else{
-						let gen = dofunc(op.foobar.substr(2));
-						while(!gen.next().done)yield dispstack();
-					}
-				}
+				
 				else{stack.push(Number(op.foobar));}
 				sentelem.children[opnum].classList.add("current-op");
 				yield dispstack();
