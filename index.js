@@ -70,7 +70,7 @@ function compile(src) {
                     break;
                 case "lex":
                     if (las > 0) {
-                        cursent.push({ type: "foobar", foobar: "lex" + las });
+                        cursent.push({ type: "la lex", degree: las });
                         las = 0;
                     }
                     else {
@@ -113,6 +113,9 @@ function stringifyOperation(op) {
     }
     else if (op.type === "pop") {
         return `pop ${op.howmany} elem${op.howmany === 1 ? "" : "s"}`;
+    }
+    else if (op.type === "la lex") {
+        return `push ${"la ".repeat(op.degree)}lex`;
     }
     else {
         return op.foobar;
@@ -186,8 +189,8 @@ function* steprun(src) {
                     for (let i = 0; i < howmany; i++)
                         lexes.push(stack.pop());
                 }
-                else if (op.foobar.slice(0, 3) === "lex") {
-                    stack.push(lexes[Number(op.foobar.slice(3)) - 1]);
+                else if (op.type === "la lex") {
+                    stack.push(lexes[op.degree - 1]);
                 }
                 else {
                     stack.push(Number(op.foobar));
