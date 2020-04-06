@@ -70,12 +70,12 @@ function compile(src) {
                     break;
                 case "lex":
                     if (las > 0) {
-                        cursent.push("lex" + las);
+                        cursent.push({ foobar: "lex" + las });
                         las = 0;
                     }
                     else {
                         next();
-                        cursent.push("do" + curtok);
+                        cursent.push({ foobar: "do" + curtok });
                         dofn = true;
                     }
                     break;
@@ -84,17 +84,17 @@ function compile(src) {
                 case "pelx":
                     dofn = false;
                     if (curtok !== "elx")
-                        cursent.push(curtok);
-                    cursent.unshift("pop" + maxlas);
+                        cursent.push({ foobar: curtok });
+                    cursent.unshift({ foobar: "pop" + maxlas });
                     maxlas = 0;
                     nextsent();
                     break;
                 default:
-                    cursent.push(curtok);
+                    cursent.push({ foobar: curtok });
             }
             next();
         }
-        cursent.unshift("pop" + maxlas);
+        cursent.unshift({ foobar: "pop" + maxlas });
         next();
         return sents;
     }
@@ -127,7 +127,7 @@ function* steprun(src) {
             sentelem.classList.add("sent");
             for (let op of sent) {
                 let opelem = document.createElement("span");
-                opelem.innerText = op;
+                opelem.innerText = op.foobar;
                 sentelem.appendChild(opelem);
             }
             content.appendChild(sentelem);
@@ -146,39 +146,37 @@ function* steprun(src) {
             let lexes = [];
             let opnum = 0;
             for (let op of sent) {
-                if (typeof op === "number")
-                    break;
-                if (op.slice(0, 3) === "lex") {
-                    stack.push(lexes[Number(op.slice(3)) - 1]);
+                if (op.foobar.slice(0, 3) === "lex") {
+                    stack.push(lexes[Number(op.foobar.slice(3)) - 1]);
                 }
-                else if (op.slice(0, 3) === "pop") {
-                    const howmany = Number(op.slice(3));
+                else if (op.foobar.slice(0, 3) === "pop") {
+                    const howmany = Number(op.foobar.slice(3));
                     for (let i = 0; i < howmany; i++)
                         lexes.push(stack.pop());
                 }
-                else if (op === "pelx") {
+                else if (op.foobar === "pelx") {
                     snum += stack.pop();
                 }
-                else if (op === "melx") {
+                else if (op.foobar === "melx") {
                     let jump = stack.pop();
                     if (stack.pop() === 0)
                         snum += jump;
                 }
-                else if (op.slice(0, 2) === "do") {
-                    if (op === "doxel") {
+                else if (op.foobar.slice(0, 2) === "do") {
+                    if (op.foobar === "doxel") {
                         document.getElementById("output").value += String.fromCharCode(stack.pop());
                     }
-                    else if (op === "doata") {
+                    else if (op.foobar === "doata") {
                         stack.push(stack.pop() + stack.pop());
                     }
                     else {
-                        let gen = dofunc(op.substr(2));
+                        let gen = dofunc(op.foobar.substr(2));
                         while (!gen.next().done)
                             yield dispstack();
                     }
                 }
                 else {
-                    stack.push(Number(op));
+                    stack.push(Number(op.foobar));
                 }
                 sentelem.children[opnum].classList.add("current-op");
                 yield dispstack();

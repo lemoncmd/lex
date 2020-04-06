@@ -4,6 +4,8 @@ interface Src<T,U> {
 	}, prog: T[]
 }
 
+type Operation = {foobar: string};
+
 function replaceEoLexToElx(tokens: readonly string[]): string[] {
 	const ans: string[] = [];
 
@@ -24,7 +26,7 @@ function compile(src: string){
 	tok = replaceEoLexToElx(tok);
 	let step = 0;
 	let curtok = tok[0];
-	let progs: Src<string, string[][]> = {dec:{}, prog:[]};
+	let progs: Src<string, Operation[][]> = {dec:{}, prog:[]};
 	if(curtok === ""){return progs;}
 	function next(){
 		if(curtok === ""){throw "reached eof";}
@@ -44,8 +46,8 @@ function compile(src: string){
 		}
 	}
 	function func(){
-		let sents = [[]];
-		let cursent: string[] = sents[0];
+		let sents: Operation[][] = [[]];
+		let cursent: Operation[] = sents[0];
 		let _cs = 0;
 		let dofn = false;
 		let las = 0;
@@ -66,11 +68,11 @@ function compile(src: string){
 				
 				case "lex":
 				if(las > 0) {
-					cursent.push("lex" + las);
+					cursent.push({foobar: "lex" + las});
 					las = 0;
 				}else{
 					next();
-					cursent.push("do" + curtok);
+					cursent.push({foobar: "do" + curtok});
 					dofn = true;
 				}
 				break;
@@ -79,18 +81,18 @@ function compile(src: string){
 				case "melx":
 				case "pelx":
 				dofn = false;
-				if(curtok !== "elx")cursent.push(curtok);
-				cursent.unshift("pop" + maxlas);
+				if(curtok !== "elx")cursent.push({foobar: curtok});
+				cursent.unshift({foobar: "pop" + maxlas});
 				maxlas = 0;
 				nextsent();
 				break;
 				
 				default:
-				cursent.push(curtok);
+				cursent.push({foobar: curtok});
 			}
 			next();
 		}
-		cursent.unshift("pop" + maxlas);
+		cursent.unshift({foobar: "pop" + maxlas});
 		next();
 		return sents;
 	}
@@ -100,7 +102,8 @@ function compile(src: string){
 
 let stepgen = steprun(compile(''));
 
-function* steprun(src: Src<string, string[][]>){
+
+function* steprun(src: Src<string, Operation[][]>){
 	let stack: number[] = [];
 
 	(document.getElementById("output")! as HTMLTextAreaElement).value = "";
@@ -129,7 +132,7 @@ function* steprun(src: Src<string, string[][]>){
 
 			for(let op of sent){
 				let opelem = document.createElement("span");
-				opelem.innerText = op;
+				opelem.innerText = op.foobar;
 				sentelem.appendChild(opelem);
 			}
 
@@ -141,35 +144,34 @@ function* steprun(src: Src<string, string[][]>){
 	yield dispstack();
 
 	function* dofunc(fname: string){
-		let func = src.dec[fname];
+		let func: Operation[][] = src.dec[fname];
 		if(typeof func === "undefined") throw "function `" + fname + "` is not defined";
 		let content = (document.getElementById("content-" + fname)! as HTMLDivElement).children;
 
 		for (let snum=0;snum<func.length; snum++){
 			let sentelem = content[snum];
-			let sent = func[snum];
+			let sent: Operation[] = func[snum];
 			let lexes = [];
 			let opnum = 0;
 			for(let op of sent){
-				if(typeof op === "number")break;
-				if(op.slice(0,3) === "lex"){stack.push(lexes[Number(op.slice(3))-1]!);}
-				else if(op.slice(0,3) === "pop"){
-					const howmany = Number(op.slice(3));
+				if(op.foobar.slice(0,3) === "lex"){stack.push(lexes[Number(op.foobar.slice(3))-1]!);}
+				else if(op.foobar.slice(0,3) === "pop"){
+					const howmany = Number(op.foobar.slice(3));
 					for(let i=0; i<howmany; i++)lexes.push(stack.pop());
 				}
-				else if(op === "pelx"){snum+=stack.pop()!;}
-				else if(op === "melx"){let jump =stack.pop()!; if(stack.pop() === 0)snum+=jump;}
-				else if(op.slice(0, 2) === "do"){
-					if(op === "doxel"){
+				else if(op.foobar === "pelx"){snum+=stack.pop()!;}
+				else if(op.foobar === "melx"){let jump =stack.pop()!; if(stack.pop() === 0)snum+=jump;}
+				else if(op.foobar.slice(0, 2) === "do"){
+					if(op.foobar === "doxel"){
 						(document.getElementById("output")! as HTMLTextAreaElement).value += String.fromCharCode(stack.pop()!);
-					}else if(op === "doata"){
+					}else if(op.foobar === "doata"){
 						stack.push(stack.pop()!+stack.pop()!);
 					}else{
-						let gen = dofunc(op.substr(2));
+						let gen = dofunc(op.foobar.substr(2));
 						while(!gen.next().done)yield dispstack();
 					}
 				}
-				else{stack.push(Number(op));}
+				else{stack.push(Number(op.foobar));}
 				sentelem.children[opnum].classList.add("current-op");
 				yield dispstack();
 				sentelem.children[opnum].classList.remove("current-op");
