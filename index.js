@@ -89,6 +89,14 @@ function compile(src) {
                     maxlas = 0;
                     nextsent();
                     break;
+                case "l'is":
+                    next();
+                    cursent.push({ type: "l'is", vname: curtok });
+                    break;
+                case "xale":
+                    next();
+                    cursent.push({ type: "xale", vname: curtok });
+                    break;
                 default:
                     cursent.push({ type: "push", value: tokenToValue(curtok) });
             }
@@ -117,6 +125,12 @@ function stringifyOperation(op) {
     else if (op.type === "execute") {
         return "execute " + op.fname;
     }
+    else if (op.type === "l'is") {
+        return `save to ${op.vname}`;
+    }
+    else if (op.type === "xale") {
+        return `copy ${op.vname}`;
+    }
     else if (op.type === "pop") {
         return `pop ${op.howmany} elem${op.howmany === 1 ? "" : "s"}`;
     }
@@ -129,6 +143,7 @@ function stringifyOperation(op) {
 }
 function* steprun(src) {
     let stack = [];
+    let vars = {};
     document.getElementById("output").value = "";
     function dispstack() {
         document.getElementById("stack").innerText = "[" + stack.join("][") + "]";
@@ -197,6 +212,12 @@ function* steprun(src) {
                 }
                 else if (op.type === "la lex") {
                     stack.push(lexes[op.degree - 1]);
+                }
+                else if (op.type === "xale") {
+                    stack = stack.concat(vars[op.vname]);
+                }
+                else if (op.type === "l'is") {
+                    vars[op.vname] = [...stack];
                 }
                 else {
                     stack.push(op.value);

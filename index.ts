@@ -8,7 +8,10 @@ type Operation = "melx" | "pelx"
 	| {type: "execute", fname: string} 
 	| {type: "pop", howmany: number}
 	| {type: "push", value: Value}
-	| {type: "la lex", degree: number};
+	| {type: "la lex", degree: number}
+	| {type: "xale", vname: string}
+	| {type: "l'is", vname: string}
+;
 
 type Value = number;
 
@@ -73,28 +76,38 @@ function compile(src: string){
 				break;
 				
 				case "lex":
-				if(las > 0) {
-					cursent.push({type: "la lex", degree: las});
-					las = 0;
-				}else{
-					next();
-					cursent.push({type: "execute", fname: curtok});
-					dofn = true;
-				}
+					if(las > 0) {
+						cursent.push({type: "la lex", degree: las});
+						las = 0;
+					}else{
+						next();
+						cursent.push({type: "execute", fname: curtok});
+						dofn = true;
+					}
 				break;
 				
 				case "elx":
 				case "melx":
 				case "pelx":
-				dofn = false;
-				if(curtok !== "elx")cursent.push(curtok);
-				cursent.unshift({type: "pop", howmany: maxlas});
-				maxlas = 0;
-				nextsent();
+					dofn = false;
+					if(curtok !== "elx")cursent.push(curtok);
+					cursent.unshift({type: "pop", howmany: maxlas});
+					maxlas = 0;
+					nextsent();
+				break;
+				
+				case "l'is":
+					next();
+					cursent.push({type: "l'is", vname: curtok});
+				break;
+				
+				case "xale":
+					next();
+					cursent.push({type: "xale", vname: curtok});
 				break;
 				
 				default:
-				cursent.push({type: "push", value: tokenToValue(curtok)});
+					cursent.push({type: "push", value: tokenToValue(curtok)});
 			}
 			next();
 		}
@@ -121,10 +134,14 @@ function stringifyOperation(op: Operation) {
 		return op; 
 	} else if (op.type === "execute") {
 		return "execute " + op.fname;
+	} else if (op.type === "l'is") {
+		return `save to ${op.vname}`;
+	} else if (op.type === "xale") {
+		return `copy ${op.vname}`;
 	} else if (op.type === "pop") {
 		return `pop ${op.howmany} elem${op.howmany === 1 ? "" : "s"}`;
 	} else if (op.type === "la lex") {
-		return `push ${"la ".repeat(op.degree)}lex`
+		return `push ${"la ".repeat(op.degree)}lex`;
 	} else {
 		return `push ${stringifyValue(op.value)}`;
 	}
@@ -132,6 +149,7 @@ function stringifyOperation(op: Operation) {
 
 function* steprun(src: Src<string, Operation[][]>){
 	let stack: number[] = [];
+	let vars: {[key: string]: number[]} = {};
 
 	(document.getElementById("output")! as HTMLTextAreaElement).value = "";
 	function dispstack(){
@@ -198,6 +216,8 @@ function* steprun(src: Src<string, Operation[][]>){
 					for(let i=0; i<howmany; i++)lexes.push(stack.pop());
 				}
 				else if(op.type === "la lex"){stack.push(lexes[op.degree-1]!);}
+				else if(op.type === "xale"){stack = stack.concat(vars[op.vname]!)}
+				else if(op.type === "l'is"){vars[op.vname] = [...stack];}
 				else{stack.push(op.value);}
 				sentelem.children[opnum].classList.add("current-op");
 				yield dispstack();
