@@ -7,8 +7,10 @@ interface Src<T,U> {
 type Operation = "melx" | "pelx" 
 	| {type: "execute", fname: string} 
 	| {type: "pop", howmany: number}
-	| {type: "foobar", foobar: string}
+	| {type: "push", value: Value}
 	| {type: "la lex", degree: number};
+
+type Value = number;
 
 function replaceEoLexToElx(tokens: readonly string[]): string[] {
 	const ans: string[] = [];
@@ -92,7 +94,7 @@ function compile(src: string){
 				break;
 				
 				default:
-				cursent.push({type: "foobar", foobar: curtok});
+				cursent.push({type: "push", value: tokenToValue(curtok)});
 			}
 			next();
 		}
@@ -102,6 +104,14 @@ function compile(src: string){
 	}
 	while(curtok !== ""){declare();}
 	return progs;
+}
+
+function tokenToValue(tok: string): Value {
+	return Number(tok);
+}
+
+function stringifyValue(v: Value): string {
+	return v + "";
 }
 
 let stepgen = steprun(compile(''));
@@ -116,7 +126,7 @@ function stringifyOperation(op: Operation) {
 	} else if (op.type === "la lex") {
 		return `push ${"la ".repeat(op.degree)}lex`
 	} else {
-		return op.foobar;
+		return `push ${stringifyValue(op.value)}`;
 	}
 }
 
@@ -188,7 +198,7 @@ function* steprun(src: Src<string, Operation[][]>){
 					for(let i=0; i<howmany; i++)lexes.push(stack.pop());
 				}
 				else if(op.type === "la lex"){stack.push(lexes[op.degree-1]!);}
-				else{stack.push(Number(op.foobar));}
+				else{stack.push(op.value);}
 				sentelem.children[opnum].classList.add("current-op");
 				yield dispstack();
 				sentelem.children[opnum].classList.remove("current-op");

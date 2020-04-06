@@ -90,7 +90,7 @@ function compile(src) {
                     nextsent();
                     break;
                 default:
-                    cursent.push({ type: "foobar", foobar: curtok });
+                    cursent.push({ type: "push", value: tokenToValue(curtok) });
             }
             next();
         }
@@ -102,6 +102,12 @@ function compile(src) {
         declare();
     }
     return progs;
+}
+function tokenToValue(tok) {
+    return Number(tok);
+}
+function stringifyValue(v) {
+    return v + "";
 }
 let stepgen = steprun(compile(''));
 function stringifyOperation(op) {
@@ -118,7 +124,7 @@ function stringifyOperation(op) {
         return `push ${"la ".repeat(op.degree)}lex`;
     }
     else {
-        return op.foobar;
+        return `push ${stringifyValue(op.value)}`;
     }
 }
 function* steprun(src) {
@@ -193,7 +199,7 @@ function* steprun(src) {
                     stack.push(lexes[op.degree - 1]);
                 }
                 else {
-                    stack.push(Number(op.foobar));
+                    stack.push(op.value);
                 }
                 sentelem.children[opnum].classList.add("current-op");
                 yield dispstack();
