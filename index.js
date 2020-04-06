@@ -147,6 +147,11 @@ function* steprun(src) {
     document.getElementById("output").value = "";
     function dispstack() {
         document.getElementById("stack").innerText = "[" + stack.join("][") + "]";
+        let saved = [];
+        for (let i in vars) {
+            saved.push(`${i}: [${vars[i].join("][")}]`);
+        }
+        document.getElementById("saved").innerText = saved.join("\n");
     }
     let compiled = document.getElementById("compiled");
     compiled.innerHTML = "";

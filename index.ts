@@ -154,6 +154,11 @@ function* steprun(src: Src<string, Operation[][]>){
 	(document.getElementById("output")! as HTMLTextAreaElement).value = "";
 	function dispstack(){
 		document.getElementById("stack")!.innerText = "["+stack.join("][")+"]";
+		let saved: string[] = [];
+		for(let i in vars){
+			saved.push(`${i}: [${vars[i].join("][")}]`);
+		}
+		document.getElementById("saved")!.innerText = saved.join("\n");
 	}
 
 	let compiled = document.getElementById("compiled")! as HTMLDivElement; 
