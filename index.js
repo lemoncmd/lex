@@ -240,3 +240,85 @@ function* steprun(src) {
             yield dispstack();
     }
 }
+function gen2003lk(src) {
+    let result = [];
+    let vars = [];
+    // startup 
+    result.push("'i'c");
+    result.push("krz f5 f1");
+    result.push("krz " + 0xa0000000.toString() + " f2");
+    result.push("nta 12 f5");
+    result.push("krz 0 f5@");
+    result.push("nta 4 f5");
+    // execution
+    for (let i of src.prog) {
+        result.push(`inj ${i} xx f5@`);
+    }
+    // cleanup
+    result.push("ata 16 f5");
+    result.push("krz jisesn xx");
+    // primitive function
+    result.push("nll ata");
+    result.push("krz f5@ xx");
+    // function definitions
+    for (let fname in src.dec) {
+        result.push("nll " + fname);
+        for (let si in src.dec[fname]) {
+            result.push(`nll ${fname}_${si} krz ${fname}_${si}x xx`);
+        }
+        for (let si in src.dec[fname]) {
+            let sent = src.dec[fname][si];
+            result.push(`nll ${fname}_${si}x fen`);
+            for (let op of sent) {
+                if (op === "melx") {
+                    result.push("krz f2@ f0");
+                    result.push("nta 4 f2");
+                    result.push("krz f2@ f3");
+                    result.push("nta 4 f2");
+                    result.push(`ata ${fname}_${si} f3`);
+                    result.push("fi f0 0 clo malkrz f3 xx");
+                }
+                else if (op === "pelx") {
+                    result.push("krz f2@ f3");
+                    result.push("nta 4 f2");
+                    result.push(`ata ${fname}_${si} f3`);
+                    result.push("krz f3 xx");
+                }
+                else
+                    switch (op.type) {
+                        case "execute":
+                            result.push("nta 4 f5");
+                            result.push(`inj ${op.fname} xx f5@`);
+                            result.push("ata 4 f5");
+                            break;
+                        case "pop":
+                            for (let i = 0; i < op.howmany; i++) {
+                                result.push(`krz f2@ f1+${i}@`);
+                                result.push("nta 4 f2");
+                            }
+                            break;
+                        case "push":
+                            result.push("ata 4 f2");
+                            result.push(`krz ${op.value} f2@`);
+                            break;
+                        case "la lex":
+                            result.push("ata 4 f2");
+                            result.push(`krz f1+${op.degree - 1}@ f2@`);
+                            break;
+                        case "xale":
+                            break;
+                        case "l'is":
+                            break;
+                    }
+            }
+        }
+        result.push("krz f5@ xx");
+    }
+    // end point
+    result.push("nll jisesn fen");
+    return result.map((cur) => {
+        if (typeof cur === "string")
+            return cur;
+        return cur.code.replace("%", (0xa0000000 + 0x100000 * (vars.indexOf(cur.variable) + 1)).toString());
+    }).join("\n");
+}
