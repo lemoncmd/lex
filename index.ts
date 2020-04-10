@@ -244,7 +244,9 @@ function gen2003lk(src: Src<string, Operation[][]>): string {
 
 	// startup 
 	result.push("'i'c");
+	result.push("nta 4 f5");
 	result.push("krz f5 f1");
+	result.push("nta 8 f1");
 	result.push("krz " + 0xa0000000.toString() + " f2");
 	result.push("nta 12 f5");
 	result.push("krz 0 f5@");
@@ -256,11 +258,13 @@ function gen2003lk(src: Src<string, Operation[][]>): string {
 	}
 
 	// cleanup
-	result.push("ata 16 f5");
+	result.push("ata 20 f5");
 	result.push("krz jisesn xx");
 
 	// primitive function
 	result.push("nll ata");
+	result.push("nta 4 f2");
+	result.push("ata f2+4@ f2@");
 	result.push("krz f5@ xx");
 
 	// function definitions
@@ -275,16 +279,20 @@ function gen2003lk(src: Src<string, Operation[][]>): string {
 			result.push(`nll ${fname}_${si}x fen`);
 			for(let op of sent) {
 				if(op === "melx") {
-					result.push("krz f2@ f0");
-					result.push("nta 4 f2");
 					result.push("krz f2@ f3");
 					result.push("nta 4 f2");
+					result.push("krz f2@ f0");
+					result.push("nta 4 f2");
+					result.push("lat 4 f3 f3");
 					result.push(`ata ${fname}_${si} f3`);
+					result.push("ata 4 f3");
 					result.push("fi f0 0 clo malkrz f3 xx");
 				} else if(op === "pelx") {
 					result.push("krz f2@ f3");
 					result.push("nta 4 f2");
+					result.push("lat 4 f3 f3");
 					result.push(`ata ${fname}_${si} f3`);
+					result.push("ata 4 f3");
 					result.push("krz f3 xx");
 				} else switch(op.type) {
 					case "execute":
@@ -295,19 +303,19 @@ function gen2003lk(src: Src<string, Operation[][]>): string {
 
 					case "pop":
 						for(let i = 0; i < op.howmany; i++) {
-							result.push(`krz f2@ f1+${i}@`);
+							result.push(`krz f2@ f1+${i*4}@`);
 							result.push("nta 4 f2");
 						}
 					break;
 
 					case "push":
 						result.push("ata 4 f2");
-						result.push(`krz ${op.value} f2@`);
+						result.push(`krz ${op.value < 0 ? 2**32 + op.value: op.value} f2@`);
 					break;
 
 					case "la lex":
 						result.push("ata 4 f2");
-						result.push(`krz f1+${op.degree-1}@ f2@`);
+						result.push(`krz f1+${(op.degree-1)*4}@ f2@`);
 					break;
 
 					case "xale":
@@ -323,7 +331,7 @@ function gen2003lk(src: Src<string, Operation[][]>): string {
 	}
 
 	// end point
-	result.push("nll jisesn fen");
+	result.push("nll jisesn krz f5@ xx");
 
 	return result.map((cur: Placeholder):string => {
 		if(typeof cur === "string") return cur;
