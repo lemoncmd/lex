@@ -252,6 +252,8 @@ function gen2003lk(src: Src<string, Operation[][]>): string {
 	result.push("nta 12 f5");
 	result.push("krz 0 f5@");
 	result.push("nta 4 f5");
+	result.push("krz " + 0xaffffffc.toString() + " f0");
+	result.push("krz f0 f0@");
 
 	// execution
 	for(let i of src.prog) {
@@ -266,6 +268,14 @@ function gen2003lk(src: Src<string, Operation[][]>): string {
 	result.push("nll ata");
 	result.push("nta 4 f2");
 	result.push("ata f2+4@ f2@");
+	result.push("krz f5@ xx");
+
+	result.push("nll xel"); // temporally support
+	result.push("krz " + 0xaffffffc.toString() + " f0");
+	result.push("nta 4 f0@");
+	result.push("krz f0@ f3");
+	result.push("krz f2@ f3@");
+	result.push("nta 4 f2");
 	result.push("krz f5@ xx");
 
 	// function definitions
