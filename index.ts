@@ -241,6 +241,7 @@ function gen2003lk(src: Src<string, Operation[][]>): string {
 	type Placeholder = string | {code: string, variable: string};
 	let result: Placeholder[] = [];
 	let vars: string[] = [];
+	let templabel = 0;
 
 	// startup 
 	result.push("'i'c");
@@ -318,11 +319,37 @@ function gen2003lk(src: Src<string, Operation[][]>): string {
 						result.push(`krz f1+${(op.degree-1)*4}@ f2@`);
 					break;
 
-					case "xale":
-					break;
+					case "xale":{
+						const label1 = templabel++;
+						const label2 = templabel++;
+						if(!~vars.indexOf(op.vname)) vars.push(op.vname);
+						result.push({code:"krz % f0", variable:op.vname});
+						result.push("krz f0@ f3");
+						result.push(`nll irxe${label1}`);
+						result.push(`fi f0 f3 clo malkrz irxe${label2} xx`);
+						result.push("ata 4 f0");
+						result.push("ata 4 f2");
+						result.push("krz f0@ f2@");
+						result.push(`krz irxe${label1} xx`);
+						result.push(`nll irxe${label2} fen`);
+					};break;
 
-					case "l'is":
-					break;
+					case "l'is":{
+						const label1 = templabel++;
+						const label2 = templabel++;
+						if(!~vars.indexOf(op.vname)) vars.push(op.vname);
+						result.push({code:"krz % f3", variable:op.vname});
+						result.push("krz " + 0xa0000000.toString() + " f0");
+						result.push(`nll irxe${label1}`);
+						result.push(`fi f0 f2 clo malkrz irxe${label2} xx`);
+						result.push("ata 4 f0");
+						result.push("ata 4 f3");
+						result.push("krz f0@ f3@");
+						result.push(`krz irxe${label1} xx`);
+						result.push(`nll irxe${label2}`);
+						result.push({code:"krz % f0", variable:op.vname});
+						result.push("krz f3 f0@");
+					};break;
 				}
 			}
 		}

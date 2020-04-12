@@ -21,7 +21,8 @@
         <textarea id="output" rows="10" cols="64"></textarea><br>
         <input type="button" onclick="stepgen = steprun(compile(document.getElementById('program').value));while(!stepgen.next().done);" value="compile &amp; run">
         <input type="button" onclick="stepgen = steprun(compile(document.getElementById('program').value));stepgen.next()" value="compile">
-        <input type="button" onclick="stepgen.next()" value="step">
+        <input type="button" onclick="stepgen.next()" value="step"><br>
+        <input type="button" onclick="document.getElementById('output').value = gen2003lk(compile(document.getElementById('program').value))" value="compile to 2003lk">
       </div>
       <div class="flex-item runs">
         <div class="flex-item2">

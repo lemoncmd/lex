@@ -243,6 +243,7 @@ function* steprun(src) {
 function gen2003lk(src) {
     let result = [];
     let vars = [];
+    let templabel = 0;
     // startup 
     result.push("'i'c");
     result.push("nta 4 f5");
@@ -314,8 +315,42 @@ function gen2003lk(src) {
                             result.push(`krz f1+${(op.degree - 1) * 4}@ f2@`);
                             break;
                         case "xale":
+                            {
+                                const label1 = templabel++;
+                                const label2 = templabel++;
+                                if (!~vars.indexOf(op.vname))
+                                    vars.push(op.vname);
+                                result.push({ code: "krz % f0", variable: op.vname });
+                                result.push("krz f0@ f3");
+                                result.push(`nll irxe${label1}`);
+                                result.push(`fi f0 f3 clo malkrz irxe${label2} xx`);
+                                result.push("ata 4 f0");
+                                result.push("ata 4 f2");
+                                result.push("krz f0@ f2@");
+                                result.push(`krz irxe${label1} xx`);
+                                result.push(`nll irxe${label2} fen`);
+                            }
+                            ;
                             break;
                         case "l'is":
+                            {
+                                const label1 = templabel++;
+                                const label2 = templabel++;
+                                if (!~vars.indexOf(op.vname))
+                                    vars.push(op.vname);
+                                result.push({ code: "krz % f3", variable: op.vname });
+                                result.push("krz " + 0xa0000000.toString() + " f0");
+                                result.push(`nll irxe${label1}`);
+                                result.push(`fi f0 f2 clo malkrz irxe${label2} xx`);
+                                result.push("ata 4 f0");
+                                result.push("ata 4 f3");
+                                result.push("krz f0@ f3@");
+                                result.push(`krz irxe${label1} xx`);
+                                result.push(`nll irxe${label2}`);
+                                result.push({ code: "krz % f0", variable: op.vname });
+                                result.push("krz f3 f0@");
+                            }
+                            ;
                             break;
                     }
             }
