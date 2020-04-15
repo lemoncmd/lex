@@ -241,6 +241,12 @@ function* steprun(src: Src<string, Operation[][]>){
 	}
 }
 
+function mangleName(name: string): string {
+	if(name.match(/^(f\d|xx|krz((8|16)[ic])?|malkrz|fen|inj|[an]ta|lat|latsna|[kn]ak|ada|ekc|dal|d[trR]o|dtosna|fi|x[tyo]lo(nys)?|[cl]lo|niv|llonys|'c'i|'i'c|l'|nll|kue|xok)_*$/) !== null
+	|| name.match(/^.+_\d+x?_*$/) !== null) return name + "_";
+	return name;
+}
+
 function gen2003lk(src: Src<string, Operation[][]>): string {
 	type Placeholder = string | {code: string, variable: string};
 	let result: Placeholder[] = [];
@@ -261,7 +267,7 @@ function gen2003lk(src: Src<string, Operation[][]>): string {
 
 	// execution
 	for(let i of src.prog) {
-		result.push(`inj ${i} xx f5@`);
+		result.push(`inj ${mangleName(i)} xx f5@`);
 	}
 
 	// cleanup
@@ -269,7 +275,7 @@ function gen2003lk(src: Src<string, Operation[][]>): string {
 	result.push("krz jisesn xx");
 
 	// primitive function
-	result.push("nll ata");
+	result.push("nll ata_");
 	result.push("nta 4 f2");
 	result.push("ata f2+4@ f2@");
 	result.push("krz f5@ xx");
@@ -284,7 +290,7 @@ function gen2003lk(src: Src<string, Operation[][]>): string {
 
 	// function definitions
 	for(let fname in src.dec) {
-		result.push("nll " + fname);
+		result.push(`nll ${mangleName(fname)} fen`);
 
 		for(let si in src.dec[fname]) {
 			result.push(`nll ${fname}_${si} krz ${fname}_${si}x xx`);
@@ -312,7 +318,7 @@ function gen2003lk(src: Src<string, Operation[][]>): string {
 				} else switch(op.type) {
 					case "execute":
 						result.push("nta 4 f5");
-						result.push(`inj ${op.fname} xx f5@`);
+						result.push(`inj ${mangleName(op.fname)} xx f5@`);
 						result.push("ata 4 f5");
 					break;
 
