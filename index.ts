@@ -120,7 +120,11 @@ function compile(src: string){
 }
 
 function tokenToValue(tok: string): Value {
-	return Number(tok);
+	let match = tok.match(/^(\|?)(\d+)$/);
+	if(match === null) throw "expected number";
+	let value = Number(match[2]);
+	if(match[1] === "|") value = -value;
+	return value;
 }
 
 function stringifyValue(v: Value): string {

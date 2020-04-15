@@ -112,7 +112,13 @@ function compile(src) {
     return progs;
 }
 function tokenToValue(tok) {
-    return Number(tok);
+    let match = tok.match(/^(\|?)(\d+)$/);
+    if (match === null)
+        throw "expected number";
+    let value = Number(match[2]);
+    if (match[1] === "|")
+        value = -value;
+    return value;
 }
 function stringifyValue(v) {
     return v + "";
